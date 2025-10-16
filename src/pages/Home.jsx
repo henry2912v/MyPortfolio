@@ -1,7 +1,8 @@
 import profilepic from "../assets/profilepic.jpg";
+import { useState, useEffect, useRef } from "react";
+import emailjs from "@emailjs/browser";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import { useState, useEffect } from "react";
 import {
   Menu,
   X,
@@ -18,9 +19,92 @@ import {
 } from "lucide-react";
 
 export const Portfolio = () => {
+  useEffect(() => {
+    AOS.init({
+      duration: 800,
+      once: false,
+      mirror: true,
+    });
+  }, []);
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
   const [isScrolled, setIsScrolled] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState({ type: "", message: "" });
+  const form = useRef();
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus({ type: "", message: "" });
+
+    try {
+      // Replace these with your actual EmailJS credentials
+      await emailjs.sendForm(
+        "YOUR_SERVICE_ID",
+        "YOUR_TEMPLATE_ID",
+        form.current,
+        "YOUR_PUBLIC_KEY"
+      );
+
+      setSubmitStatus({
+        type: "success",
+        message: "Message sent successfully! I will get back to you soon.",
+      });
+      setFormData({ name: "", email: "", message: "" });
+    } catch (error) {
+      setSubmitStatus({
+        type: "error",
+        message: "Failed to send message. Please try again later.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Mock images data
+  const carouselImages = [
+    {
+      src: "https://picsum.photos/800/400?random=1",
+      title: "Hardware Troubleshooting",
+      description: "Diagnosing and resolving PC hardware issues",
+    },
+    {
+      src: "https://picsum.photos/800/400?random=2",
+      title: "Network Setup",
+      description: "Configuring and maintaining network infrastructure",
+    },
+    {
+      src: "https://picsum.photos/800/400?random=3",
+      title: "User Support",
+      description: "Providing technical assistance to office staff",
+    },
+  ];
+
+  const handleNextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
+  };
+
+  const handlePrevSlide = () => {
+    setCurrentSlide(
+      (prev) => (prev - 1 + carouselImages.length) % carouselImages.length
+    );
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -66,7 +150,7 @@ export const Portfolio = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
       {/* Navigation */}
       <nav
         className={`fixed w-full z-50 transition-all duration-300 ${
@@ -78,7 +162,7 @@ export const Portfolio = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex-shrink-0">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
                 Henry.
               </h1>
             </div>
@@ -91,8 +175,10 @@ export const Portfolio = () => {
                   onClick={() => scrollToSection(item.id)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
                     activeSection === item.id
-                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg"
-                      : "text-gray-700 hover:bg-gray-100"
+                      ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
+                      : isScrolled
+                      ? "text-gray-700 hover:bg-orange-400"
+                      : "text-white hover:bg-orange/10"
                   }`}
                 >
                   <item.icon size={16} />
@@ -105,7 +191,9 @@ export const Portfolio = () => {
             <div className="md:hidden">
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="text-gray-700 hover:text-blue-600 p-2"
+                className={`${
+                  isScrolled ? "text-gray-700" : "text-white"
+                } hover:text-blue-600 p-2`}
               >
                 {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
@@ -123,7 +211,7 @@ export const Portfolio = () => {
                   onClick={() => scrollToSection(item.id)}
                   className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
                     activeSection === item.id
-                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
+                      ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white"
                       : "text-gray-700 hover:bg-gray-100"
                   }`}
                 >
@@ -139,29 +227,30 @@ export const Portfolio = () => {
       {/* Home Section */}
       <section
         id="home"
-        className="min-h-screen flex items-center justify-center pt-20 px-4"
+        className="min-h-screen flex items-center justify-center pt-20 px-4 bg-gradient-to-br from-black via-orange-900 to-black"
+        data-aos="fade-up"
       >
         <div className="max-w-7xl mx-auto text-center">
-          <div className="mb-8 animate-fade-in">
+          <div className="mb-8" data-aos="zoom-in">
             <img
               src={profilepic}
               alt="profile"
-              className="w-70 h-70 rounded-full object-cover mx-auto border-8 border-blue-500 shadow-lg "
+              className="w-70 h-70 rounded-full object-cover mx-auto border-8 border-orange-500 shadow-lg"
             />
           </div>
-          <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-4">
+          <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent mb-4">
             Patrick Henry Maderazo
           </h1>
-          <p className="text-xl md:text-2xl text-gray-600 mb-2">
+          <p className="text-xl md:text-2xl text-gray-300 mb-2">
             BSIT Student / IT HelpDesk
           </p>
-          <p className="text-lg text-gray-500 max-w-2xl mx-auto mb-8">
+          <p className="text-lg text-gray-400 max-w-2xl mx-auto mb-8">
             Behind every smooth-running system is someone who ensures problems
             never reach the user — that’s where I come in.
           </p>
           <button
             onClick={() => scrollToSection("contact")}
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-full font-semibold hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+            className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-8 py-4 rounded-full font-semibold hover:shadow-xl transition-all duration-300 transform hover:scale-105"
           >
             Get In Touch
           </button>
@@ -171,21 +260,22 @@ export const Portfolio = () => {
       {/* About Me Section */}
       <section
         id="about"
-        className="min-h-screen flex items-center justify-center py-20 px-4 bg-white/50"
+        className="min-h-screen flex items-center justify-center py-20 px-4 bg-gradient-to-br from-black via-orange-900 to-black"
+        data-aos="fade-up"
       >
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-12 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          <h2 className="text-4xl md:text-5xl font-bold text-center mb-12 text-white">
             About Me
           </h2>
 
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <div className="bg-white rounded-2xl p-8 shadow-xl border border-blue-100">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <GraduationCap className="text-blue-600" />
+              <div className="bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-700">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                  <GraduationCap className="text-orange-500" />
                   Skills Summary
                 </h3>
-                <p className="text-gray-600 leading-relaxed mb-4">
+                <p className="text-white leading-relaxed mb-4">
                   Motivated IT student with strong communication,
                   problem-solving, and technical support skills. Proficient in
                   troubleshooting hardware and software issues, assisting users,
@@ -222,9 +312,9 @@ export const Portfolio = () => {
             </div>
 
             <div className="space-y-6">
-              <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-8 shadow-xl text-white">
+              <div className="bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-700 text-white">
                 <h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                  <ComputerIcon className="text-white" />
+                  <ComputerIcon className="text-orange-500" />
                   Technical Proficiencies
                 </h3>
                 <div className="space-y-3">
@@ -277,239 +367,127 @@ export const Portfolio = () => {
       {/* Internship Section */}
       <section
         id="internship"
-        className="min-h-screen flex items-center justify-center py-20 px-4"
+        className="min-h-screen flex items-center justify-center py-20 px-4 bg-gradient-to-br from-black via-orange-900 to-black"
+        data-aos="fade-up"
       >
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-12 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          <h2 className="text-4xl md:text-5xl font-bold text-center mb-12 text-white">
             Internship Information
           </h2>
 
           <div className="grid md:grid-cols-2 gap-8 mb-12">
-            <div className="bg-white rounded-2xl p-6 shadow-xl border border-blue-100 hover:shadow-2xl transition-all duration-300">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
-                <Briefcase className="text-blue-600" size={24} />
+            <div className="bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-700 hover:shadow-2xl transition-all duration-300">
+              <div className="w-12 h-12 bg-blue-900 rounded-xl flex items-center justify-center mb-4">
+                <Briefcase className="text-orange-500" size={24} />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
+              <h3 className="text-xl font-bold text-white mb-2">
                 S.P Madrid & Associates
               </h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-300 text-sm">
                 Organization details where you completed your internship
               </p>
             </div>
 
-            <div className="bg-white rounded-2xl p-6 shadow-xl border border-indigo-100 hover:shadow-2xl transition-all duration-300">
-              <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mb-4">
-                <ComputerIcon className="text-indigo-600" size={24} />
+            <div className="bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-700 hover:shadow-2xl transition-all duration-300">
+              <div className="w-12 h-12 bg-indigo-900 rounded-xl flex items-center justify-center mb-4">
+                <ComputerIcon className="text-orange-500" size={24} />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                IT Helpdesk
-              </h3>
-              <p className="text-gray-600 text-sm">
+              <h3 className="text-xl font-bold text-white mb-2">IT Helpdesk</h3>
+              <p className="text-gray-300 text-sm">
                 Assisting users with technical issues.
               </p>
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl p-8 shadow-2xl text-white mb-12">
-            <h3 className="text-2xl font-bold mb-6">Tasks & Accomplishments</h3>
-            <div className="space-y-4">
-              <div className="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
-                <h4 className="font-semibold mb-2">Task Description</h4>
-                <p className="text-white/90 text-sm">
-                  Details about reports written, designs created, or systems
-                  tested during your internship. Include any events you helped
-                  organize or participated in.
-                </p>
-              </div>
-              <div className="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
-                <h4 className="font-semibold mb-2">Note</h4>
-                <p className="text-white/90 text-sm italic">
-                  If permission was required from your HTE to showcase work
-                  samples, mention that here. Otherwise, describe the tasks you
-                  completed instead.
-                </p>
-              </div>
-            </div>
-          </div>
-
           {/* Sample Works Section */}
           <div className="mt-12">
-            <h3 className="text-3xl font-bold text-center mb-8 text-gray-900">
-              Sample Works & Outputs
+            <h3 className="text-3xl font-bold text-center mb-8 text-white">
+              OJT Documentation & Activities
             </h3>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Sample Work 1 */}
-              <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-                <div className="h-48 bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
-                  <Code size={64} className="text-white" />
-                </div>
-                <div className="p-6">
-                  <h4 className="text-xl font-bold text-gray-900 mb-2">
-                    Project Title 1
-                  </h4>
-                  <p className="text-gray-600 text-sm mb-4">
-                    Brief description of the project, system, or report you
-                    created during your internship.
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
-                      HTML
-                    </span>
-                    <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-medium">
-                      CSS
-                    </span>
-                    <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
-                      JavaScript
-                    </span>
+            <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-6">
+              <div className="relative">
+                <div className="overflow-hidden">
+                  <div
+                    className="flex transition-transform duration-500 ease-in-out transform"
+                    style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                  >
+                    {carouselImages.map((image, index) => (
+                      <div key={index} className="w-full flex-shrink-0">
+                        <img
+                          src={image.src}
+                          alt={`OJT Activity ${index + 1}`}
+                          className="w-full h-[400px] object-cover rounded-xl"
+                        />
+                      </div>
+                    ))}
                   </div>
-                  <button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2">
-                    <ExternalLink size={16} />
-                    View Details
-                  </button>
+                </div>
+
+                {/* Navigation Arrows */}
+                <button
+                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-blue-600 p-2 rounded-full shadow-lg backdrop-blur-sm transition-all duration-200"
+                  onClick={handlePrevSlide}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 19l-7-7 7-7"
+                    />
+                  </svg>
+                </button>
+                <button
+                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-blue-600 p-2 rounded-full shadow-lg backdrop-blur-sm transition-all duration-200"
+                  onClick={handleNextSlide}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </button>
+
+                {/* Image Counter */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
+                  <div className="flex gap-2">
+                    {carouselImages.map((_, index) => (
+                      <div
+                        key={index}
+                        className={`w-2 h-2 rounded-full transition-colors duration-300 ${
+                          currentSlide === index ? "bg-blue-600" : "bg-blue-300"
+                        }`}
+                        onClick={() => setCurrentSlide(index)}
+                        style={{ cursor: "pointer" }}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              {/* Sample Work 2 */}
-              <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-                <div className="h-48 bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center">
-                  <Briefcase size={64} className="text-white" />
-                </div>
-                <div className="p-6">
-                  <h4 className="text-xl font-bold text-gray-900 mb-2">
-                    Project Title 2
-                  </h4>
-                  <p className="text-gray-600 text-sm mb-4">
-                    Database design, system testing, or documentation project
-                    completed during internship.
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
-                      SQL
-                    </span>
-                    <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-medium">
-                      Database
-                    </span>
-                  </div>
-                  <button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2">
-                    <ExternalLink size={16} />
-                    View Details
-                  </button>
-                </div>
-              </div>
-
-              {/* Sample Work 3 */}
-              <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-                <div className="h-48 bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
-                  <GraduationCap size={64} className="text-white" />
-                </div>
-                <div className="p-6">
-                  <h4 className="text-xl font-bold text-gray-900 mb-2">
-                    Project Title 3
-                  </h4>
-                  <p className="text-gray-600 text-sm mb-4">
-                    Event organization, presentation, or any other significant
-                    contribution made during internship.
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
-                      Design
-                    </span>
-                    <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-medium">
-                      Planning
-                    </span>
-                  </div>
-                  <button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2">
-                    <ExternalLink size={16} />
-                    View Details
-                  </button>
-                </div>
-              </div>
-
-              {/* Sample Work 4 - Screenshot/Image Placeholder */}
-              <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-                <div className="h-48 bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center">
-                  <div className="text-white text-center">
-                    <ExternalLink size={64} className="mx-auto mb-2" />
-                    <p className="text-sm font-medium">Screenshot/Image</p>
-                  </div>
-                </div>
-                <div className="p-6">
-                  <h4 className="text-xl font-bold text-gray-900 mb-2">
-                    Project Title 4
-                  </h4>
-                  <p className="text-gray-600 text-sm mb-4">
-                    Add screenshots or images of your work outputs here. Can
-                    include UI/UX designs or reports.
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
-                      UI/UX
-                    </span>
-                    <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-medium">
-                      Design
-                    </span>
-                  </div>
-                  <button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2">
-                    <ExternalLink size={16} />
-                    View Details
-                  </button>
-                </div>
-              </div>
-
-              {/* Sample Work 5 */}
-              <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-                <div className="h-48 bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center">
-                  <Code size={64} className="text-white" />
-                </div>
-                <div className="p-6">
-                  <h4 className="text-xl font-bold text-gray-900 mb-2">
-                    Project Title 5
-                  </h4>
-                  <p className="text-gray-600 text-sm mb-4">
-                    Additional sample work or contribution during your
-                    internship period.
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
-                      React
-                    </span>
-                    <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-medium">
-                      Web Dev
-                    </span>
-                  </div>
-                  <button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2">
-                    <ExternalLink size={16} />
-                    View Details
-                  </button>
-                </div>
-              </div>
-
-              {/* Sample Work 6 */}
-              <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-                <div className="h-48 bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
-                  <Briefcase size={64} className="text-white" />
-                </div>
-                <div className="p-6">
-                  <h4 className="text-xl font-bold text-gray-900 mb-2">
-                    Project Title 6
-                  </h4>
-                  <p className="text-gray-600 text-sm mb-4">
-                    Final sample work showcasing your skills and accomplishments
-                    during the internship.
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
-                      Testing
-                    </span>
-                    <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-medium">
-                      QA
-                    </span>
-                  </div>
-                  <button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2">
-                    <ExternalLink size={16} />
-                    View Details
-                  </button>
-                </div>
+              {/* Caption */}
+              <div className="mt-6 text-center">
+                <h4 className="text-xl font-bold text-gray-900 mb-2">
+                  {carouselImages[currentSlide].title}
+                </h4>
+                <p className="text-gray-600">
+                  {carouselImages[currentSlide].description}
+                </p>
               </div>
             </div>
           </div>
@@ -519,86 +497,117 @@ export const Portfolio = () => {
       {/* Contact Section */}
       <section
         id="contact"
-        className="min-h-screen flex items-center justify-center py-20 px-4 bg-white/50"
+        className="min-h-screen flex items-center justify-center py-20 px-4 bg-gradient-to-br from-black via-orange-900 to-black"
+        data-aos="fade-up"
       >
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-8 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          <h2 className="text-4xl md:text-5xl font-bold mb-8 text-white">
             Contact Page
           </h2>
 
           <div className="grid md:grid-cols-2 gap-8 mb-12">
-            <div className="bg-white rounded-2xl p-8 shadow-xl border border-blue-100">
-              <Mail className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+            <div
+              className="bg-white rounded-2xl p-8 shadow-xl border border-blue-100 hover:scale-105 transition-all duration-300 cursor-pointer"
+              onClick={() =>
+                (window.location.href = "mailto:henrymaderazo19@gmail.com")
+              }
+            >
+              <Mail className="w-12 h-12 text-orange-500 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-gray-900 mb-2">Email</h3>
-              <a
-                href="#"
-                className="text-blue-600 hover:text-blue-700 font-medium"
-              >
+              <p className="text-blue-600 font-medium">
                 henrymaderazo19@gmail.com
-              </a>
+              </p>
             </div>
 
-            <div className="bg-white rounded-2xl p-8 shadow-xl border border-blue-100">
-              <Facebook className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+            <div
+              className="bg-white rounded-2xl p-8 shadow-xl border border-blue-100 hover:scale-105 transition-all duration-300 cursor-pointer"
+              onClick={() =>
+                window.open(
+                  "https://www.facebook.com/phenry.maderazo",
+                  "_blank"
+                )
+              }
+            >
+              <Facebook className="w-12 h-12 text-orange-500 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-gray-900 mb-2">Facebook</h3>
-              <a
-                href="https://www.facebook.com/phenry.maderazo"
-                className="text-blue-600 hover:text-blue-700 font-medium"
-              >
+              <p className="text-blue-600 font-medium">
                 Patrick Henry Maderazo
-              </a>
+              </p>
             </div>
 
-            <div className="bg-white rounded-2xl p-8 shadow-xl border border-indigo-100">
-              <Linkedin className="w-12 h-12 text-indigo-600 mx-auto mb-4" />
+            <div
+              className="bg-white rounded-2xl p-8 shadow-xl border border-indigo-100 hover:scale-105 transition-all duration-300 cursor-pointer"
+              onClick={() =>
+                window.open(
+                  "https://www.linkedin.com/in/patrickhenrymaderazo/",
+                  "_blank"
+                )
+              }
+            >
+              <Linkedin className="w-12 h-12 text-orange-500 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-gray-900 mb-2">LinkedIn</h3>
-              <a
-                href="https://www.linkedin.com/in/patrickhenrymaderazo/"
-                className="text-indigo-600 hover:text-indigo-700 font-medium"
-              >
+              <p className="text-indigo-600 font-medium">
                 Patrick Henry Maderazo
-              </a>
+              </p>
             </div>
 
-            <div className="bg-white rounded-2xl p-8 shadow-xl border border-indigo-100">
-              <Github className="w-12 h-12 text-indigo-600 mx-auto mb-4" />
+            <div
+              className="bg-white rounded-2xl p-8 shadow-xl border border-indigo-100 hover:scale-105 transition-all duration-300 cursor-pointer"
+              onClick={() =>
+                window.open("https://github.com/henry2912v", "_blank")
+              }
+            >
+              <Github className="w-12 h-12 text-orange-500 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-gray-900 mb-2">GitHub</h3>
-              <a
-                href="https://github.com/henry2912v"
-                className="text-indigo-600 hover:text-indigo-700 font-medium"
-              >
+              <p className="text-indigo-600 font-medium">
                 Patrick Henry Maderazo
-              </a>
+              </p>
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl p-8 shadow-2xl text-white">
+          <div className="bg-gradient-to-r from-orange-600 to-orange-800 text-white rounded-2xl p-8 shadow-2xl">
             <h3 className="text-2xl font-bold mb-6">Send Me a Message</h3>
             <div className="space-y-4 text-left">
               <div>
-                <label className="block text-sm font-medium mb-2">Name</label>
+                <label className="block text-sm font-medium mb-2 text-white">
+                  Name
+                </label>
                 <input
                   type="text"
-                  className="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 rounded-lg bg-white border border-transparent text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   placeholder="Your name"
+                  required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Email</label>
+                <label className="block text-sm font-medium mb-2 text-white">
+                  Email
+                </label>
                 <input
                   type="email"
-                  className="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 rounded-lg bg-white border border-transparent text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   placeholder="Email Address"
+                  required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-sm font-medium mb-2 text-white">
                   Message
                 </label>
                 <textarea
+                  name="message"
+                  value={formData.message}
+                  onChange={handleInputChange}
                   rows="4"
-                  className="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50"
+                  className="w-full px-4 py-3 rounded-lg bg-white border border-transparent text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   placeholder="Your message..."
+                  required
                 />
               </div>
               <button className="w-full bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-all duration-200">
