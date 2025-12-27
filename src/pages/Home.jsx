@@ -381,7 +381,10 @@ export const Portfolio = () => {
                 S.P Madrid & Associates
               </h3>
               <p className="text-gray-300 text-sm">
-                Organization details where you completed your internship
+                Tech-enabled, human powered debt collection agency, specializing
+                in efficient and ethical call, field and legal collections, with
+                a team of over 2,500 employees across the Philippines,
+                Singapore, and UAE.
               </p>
             </div>
 
@@ -391,7 +394,14 @@ export const Portfolio = () => {
               </div>
               <h3 className="text-xl font-bold text-white mb-2">IT Helpdesk</h3>
               <p className="text-gray-300 text-sm">
-                Assisting users with technical issues.
+                Assisting users with technical issues. Providing timely and
+                effective first-line support for hardware, software, and
+                network-related problems. Resolving tickets involving password
+                resets, application errors, connectivity issues, and system
+                configuration. Guiding users through troubleshooting steps
+                remotely and ensuring minimal downtime. Documenting incidents
+                and solutions to contribute to knowledge base improvement and
+                faster future resolutions.
               </p>
             </div>
           </div>
