@@ -4,7 +4,6 @@ import network from "../assets/network.jpg";
 import usersupport from "../assets/usersupport.jpg";
 import pcsweepinfosec from "../assets/pcsweepinfosec.jpg";
 import clone from "../assets/clone.jpg";
-impo;
 import { useState, useEffect, useRef } from "react";
 import emailjs from "@emailjs/browser";
 import AOS from "aos";
