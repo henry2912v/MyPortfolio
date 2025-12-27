@@ -1,4 +1,5 @@
 import profilepic from "../assets/profilepic.jpg";
+import hardware from "../assets/hardware.jpg";
 import { useState, useEffect, useRef } from "react";
 import emailjs from "@emailjs/browser";
 import AOS from "aos";
@@ -72,7 +73,7 @@ export const Portfolio = () => {
   // Mock images data
   const carouselImages = [
     {
-      src: "https://picsum.photos/800/400?random=1",
+      src: { hardware },
       title: "Hardware Troubleshooting",
       description: "Diagnosing and resolving PC hardware issues",
     },
