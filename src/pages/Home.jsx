@@ -547,10 +547,7 @@ export const Portfolio = () => {
             <div
               className="bg-white rounded-2xl p-8 shadow-xl border border-indigo-100 hover:scale-105 transition-all duration-300 cursor-pointer"
               onClick={() =>
-                window.open(
-                  "https://www.linkedin.com/in/patrickhenrymaderazo/",
-                  "_blank"
-                )
+                window.open("https://www.linkedin.com/in/phmaderazo/", "_blank")
               }
             >
               <Linkedin className="w-12 h-12 text-orange-500 mx-auto mb-4" />
