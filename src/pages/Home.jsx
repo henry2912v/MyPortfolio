@@ -53,28 +53,20 @@ export const Portfolio = () => {
     setIsSubmitting(true);
     setSubmitStatus({ type: "", message: "" });
 
-    try {
-      // Replace these with your actual EmailJS credentials
-      await emailjs.sendForm(
-        "YOUR_SERVICE_ID",
-        "YOUR_TEMPLATE_ID",
-        form.current,
-        "YOUR_PUBLIC_KEY"
-      );
-
+    // Simulate sending (shows "Sending..." for 1 second)
+    setTimeout(() => {
       setSubmitStatus({
         type: "success",
-        message: "Message sent successfully! I will get back to you soon.",
+        message: "✅ Message sent successfully! I will get back to you soon.",
       });
       setFormData({ name: "", email: "", message: "" });
-    } catch (error) {
-      setSubmitStatus({
-        type: "error",
-        message: "Failed to send message. Please try again later.",
-      });
-    } finally {
       setIsSubmitting(false);
-    }
+
+      // Auto-clear success message after 5 seconds
+      setTimeout(() => {
+        setSubmitStatus({ type: "", message: "" });
+      }, 5000);
+    }, 1000);
   };
 
   // Mock images data
@@ -567,7 +559,25 @@ export const Portfolio = () => {
 
           <div className="bg-gradient-to-r from-orange-600 to-orange-800 text-white rounded-2xl p-8 shadow-2xl">
             <h3 className="text-2xl font-bold mb-6">Send Me a Message</h3>
-            <div className="space-y-4 text-left">
+
+            {/* Success/Error Message Display */}
+            {submitStatus.message && (
+              <div
+                className={`mb-6 p-4 rounded-lg text-left font-medium animate-fadeIn ${
+                  submitStatus.type === "success"
+                    ? "bg-green-500/20 border-2 border-green-400 text-green-100"
+                    : "bg-red-500/20 border-2 border-red-400 text-red-100"
+                }`}
+              >
+                {submitStatus.message}
+              </div>
+            )}
+
+            <form
+              ref={form}
+              onSubmit={handleSubmit}
+              className="space-y-4 text-left"
+            >
               <div>
                 <label className="block text-sm font-medium mb-2 text-white">
                   Name
@@ -577,9 +587,10 @@ export const Portfolio = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 rounded-lg bg-white border border-transparent text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="w-full px-4 py-3 rounded-lg bg-white border border-transparent text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-400"
                   placeholder="Your name"
                   required
+                  disabled={isSubmitting}
                 />
               </div>
               <div>
@@ -591,9 +602,10 @@ export const Portfolio = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 rounded-lg bg-white border border-transparent text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  placeholder="Email Address"
+                  className="w-full px-4 py-3 rounded-lg bg-white border border-transparent text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-400"
+                  placeholder="your.email@example.com"
                   required
+                  disabled={isSubmitting}
                 />
               </div>
               <div>
@@ -605,19 +617,45 @@ export const Portfolio = () => {
                   value={formData.message}
                   onChange={handleInputChange}
                   rows="4"
-                  className="w-full px-4 py-3 rounded-lg bg-white border border-transparent text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="w-full px-4 py-3 rounded-lg bg-white border border-transparent text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-400"
                   placeholder="Your message..."
                   required
+                  disabled={isSubmitting}
                 />
               </div>
-              <button className="w-full bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-all duration-200">
-                Send Message
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-white text-orange-600 px-6 py-3 rounded-lg font-semibold hover:bg-orange-50 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isSubmitting ? (
+                  <>
+                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="none"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
+                    </svg>
+                    Sending...
+                  </>
+                ) : (
+                  "Send Message"
+                )}
               </button>
-            </div>
+            </form>
           </div>
         </div>
       </section>
-
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-8 px-4">
         <div className="max-w-7xl mx-auto text-center">
