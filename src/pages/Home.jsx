@@ -92,17 +92,6 @@ export const Portfolio = () => {
       title: "User Support",
       description: "Providing technical assistance to office staff",
     },
-    {
-      src: pcsweepinfosec,
-      title: "PC Sweep & InfoSec",
-      description:
-        "Cleaning PC and Checking for accesibility of the user to their specific sites and files.",
-    },
-    {
-      src: clone,
-      title: "Cloning & Imaging",
-      description: "Cloning and imaging PCs for deployment and maintenance.",
-    },
   ];
 
   const handleNextSlide = () => {
