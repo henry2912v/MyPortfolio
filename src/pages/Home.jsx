@@ -1,5 +1,10 @@
 import profilepic from "../assets/profilepic.jpg";
 import hardware from "../assets/hardware.jpg";
+import network from "../assets/network.jpg";
+import usersupport from "../assets/usersupport.jpg";
+import pcsweepinfosec from "../assets/pcsweepinfosec.jpg";
+import clone from "../assets/clone.jpg";
+impo;
 import { useState, useEffect, useRef } from "react";
 import emailjs from "@emailjs/browser";
 import AOS from "aos";
@@ -73,19 +78,30 @@ export const Portfolio = () => {
   // Mock images data
   const carouselImages = [
     {
-      src: { hardware },
+      src: hardware,
       title: "Hardware Troubleshooting",
       description: "Diagnosing and resolving PC hardware issues",
     },
     {
-      src: "https://picsum.photos/800/400?random=2",
-      title: "Network Setup",
-      description: "Configuring and maintaining network infrastructure",
+      src: network,
+      title: "Network Troubleshooting",
+      description: "Testing and fixing network connectivity problems",
     },
     {
-      src: "https://picsum.photos/800/400?random=3",
+      src: usersupport,
       title: "User Support",
       description: "Providing technical assistance to office staff",
+    },
+    {
+      src: pcsweepinfosec,
+      title: "PC Sweep & InfoSec",
+      description:
+        "Cleaning PC and Checking for accesibility of the user to their specific sites and files.",
+    },
+    {
+      src: clone,
+      title: "Cloning & Imaging",
+      description: "Cloning and imaging PCs for deployment and maintenance.",
     },
   ];
 
@@ -422,7 +438,7 @@ export const Portfolio = () => {
                   onClick={handlePrevSlide}
                 >
                   <svg
-                    xmlns="http://www.w3.org/2000/svg"
+                    xmlns={hardware}
                     className="h-6 w-6"
                     fill="none"
                     viewBox="0 0 24 24"
